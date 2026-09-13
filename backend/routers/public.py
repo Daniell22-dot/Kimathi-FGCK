@@ -242,6 +242,7 @@ def get_directions(start: str, end: str):
 
     try:
         ors_res = requests.post(url, json=body, headers=headers, timeout=15)
+        print(f"ORS status: {ors_res.status_code}, body: {ors_res.text[:500]}")
         ors_res.raise_for_status()
         data = ors_res.json()
         if "features" not in data or not data["features"]:
