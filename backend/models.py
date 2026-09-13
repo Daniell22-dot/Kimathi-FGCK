@@ -50,3 +50,12 @@ class GalleryImage(Base):
     caption = Column(String)
     title = Column(String)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+class Video(Base):
+    __tablename__ = "videos"
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, nullable=False)
+    youtube_url = Column(String, nullable=False)
+    description = Column(Text)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.utcnow)

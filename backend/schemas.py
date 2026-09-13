@@ -84,3 +84,19 @@ class GalleryImage(GalleryImageBase):
 
     class Config:
         from_attributes = True
+
+class VideoBase(BaseModel):
+    title: str
+    youtube_url: str
+    description: Optional[str] = None
+    is_active: bool = True
+
+class VideoCreate(VideoBase):
+    pass
+
+class Video(VideoBase):
+    id: int
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
