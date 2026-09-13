@@ -1,9 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
-import { fetchDirections } from '../utils/api'
 
-const CHURCH_COORDS = '36.956808,-0.397906'
 const CHURCH_LAT = -0.397906
 const CHURCH_LNG = 36.956808
+const CHURCH_COORDS = `${CHURCH_LNG},${CHURCH_LAT}`
 
 export default function Directions() {
   const mapRef = useRef(null)
@@ -68,8 +67,14 @@ export default function Directions() {
     setLoading(true)
     setError('')
     setRouteInfo(null)
+
     try {
-      const data = await fetchDirections(start, CHURCH_COORDS)
+      const res = await fetch(`/api/directions?start=${encodeURIComponent(start)}&end=${encodeURIComponent(CHURCH_COORDS)}`)
+      if (!res.ok) {
+        const text = await res.text()
+        throw new Error(text || 'Directions service returned an error')
+      }
+      const data = await res.json()
       setRouteInfo(data)
       const L = window.L
       if (L && mapInstance.current) {
@@ -99,6 +104,10 @@ export default function Directions() {
     return `${Math.round(meters)} m`
   }
 
+  const googleMapsHref = start
+    ? `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(start)}&destination=${encodeURIComponent(CHURCH_COORDS)}`
+    : `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(CHURCH_COORDS)}`
+
   return (
     <div>
       <h2>Directions & Contact</h2>
@@ -116,13 +125,13 @@ export default function Directions() {
       <div className="directions-card">
         <h3>Get Directions</h3>
         <form onSubmit={getDirections}>
-          <label htmlFor="startLocation">Your location (longitude, latitude or address)</label>
+          <label htmlFor="startLocation">Your location</label>
           <input
             id="startLocation"
             type="text"
             value={start}
             onChange={(e) => setStart(e.target.value)}
-            placeholder="e.g. 36.95,-0.40 or Nairobi, Kenya"
+            placeholder="Enter an address or coordinates"
           />
           <div className="directions-actions">
             <button type="submit" disabled={loading || !start.trim()}>
@@ -131,6 +140,9 @@ export default function Directions() {
             <button type="button" onClick={useMyLocation} disabled={loading}>
               Use My Location
             </button>
+            <a className="btn btn-secondary" href={googleMapsHref} target="_blank" rel="noopener noreferrer">
+              Open in Google Maps
+            </a>
           </div>
         </form>
         {error && <p className="error">{error}</p>}
