@@ -1,0 +1,190 @@
+from fastapi import APIRouter, Depends, HTTPException, File, UploadFile, Form
+from sqlalchemy.orm import Session
+from database import SessionLocal, engine
+from models import Base, Announcement, Magazine, LibraryItem, Advertisement, GalleryImage
+from schemas import AnnouncementCreate, MagazineCreate, LibraryItemCreate, AdvertisementCreate, GalleryImageCreate
+import os
+import shutil
+from datetime import datetime
+
+Base.metadata.create_all(bind=engine)
+
+router = APIRouter()
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+UPLOAD_DIR = "backend/uploads"
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+# Announcements
+@router.get("/announcements")
+def get_announcements(db: Session = Depends(get_db)):
+    return db.query(Announcement).filter(Announcement.is_active == True).order_by(Announcement.created_at.desc()).all()
+
+@router.post("/announcements")
+def create_announcement(item: AnnouncementCreate, db: Session = Depends(get_db)):
+    db_item = Announcement(**item.dict())
+    db.add(db_item)
+    db.commit()
+    db.refresh(db_item)
+    return db_item
+
+@router.put("/announcements/{item_id}")
+def update_announcement(item_id: int, item: AnnouncementCreate, db: Session = Depends(get_db)):
+    db_item = db.query(Announcement).filter(Announcement.id == item_id).first()
+    if not db_item:
+        raise HTTPException(status_code=404, detail="Not found")
+    for key, value in item.dict().items():
+        setattr(db_item, key, value)
+    db.commit()
+    return db_item
+
+@router.delete("/announcements/{item_id}")
+def delete_announcement(item_id: int, db: Session = Depends(get_db)):
+    db_item = db.query(Announcement).filter(Announcement.id == item_id).first()
+    if not db_item:
+        raise HTTPException(status_code=404, detail="Not found")
+    db.delete(db_item)
+    db.commit()
+    return {"ok": True}
+
+# Magazines
+@router.get("/magazines")
+def get_magazines(db: Session = Depends(get_db)):
+    return db.query(Magazine).filter(Magazine.is_published == True).order_by(Magazine.published_at.desc()).all()
+
+@router.post("/magazines")
+def create_magazine(item: MagazineCreate, db: Session = Depends(get_db)):
+    db_item = Magazine(**item.dict())
+    db.add(db_item)
+    db.commit()
+    db.refresh(db_item)
+    return db_item
+
+@router.put("/magazines/{item_id}")
+def update_magazine(item_id: int, item: MagazineCreate, db: Session = Depends(get_db)):
+    db_item = db.query(Magazine).filter(Magazine.id == item_id).first()
+    if not db_item:
+        raise HTTPException(status_code=404, detail="Not found")
+    for key, value in item.dict().items():
+        setattr(db_item, key, value)
+    db.commit()
+    return db_item
+
+@router.delete("/magazines/{item_id}")
+def delete_magazine(item_id: int, db: Session = Depends(get_db)):
+    db_item = db.query(Magazine).filter(Magazine.id == item_id).first()
+    if not db_item:
+        raise HTTPException(status_code=404, detail="Not found")
+    db.delete(db_item)
+    db.commit()
+    return {"ok": True}
+
+# Library
+@router.get("/library")
+def get_library(db: Session = Depends(get_db)):
+    return db.query(LibraryItem).order_by(LibraryItem.created_at.desc()).all()
+
+@router.post("/library")
+def create_library_item(item: LibraryItemCreate, db: Session = Depends(get_db)):
+    db_item = LibraryItem(**item.dict())
+    db.add(db_item)
+    db.commit()
+    db.refresh(db_item)
+    return db_item
+
+@router.put("/library/{item_id}")
+def update_library_item(item_id: int, item: LibraryItemCreate, db: Session = Depends(get_db)):
+    db_item = db.query(LibraryItem).filter(LibraryItem.id == item_id).first()
+    if not db_item:
+        raise HTTPException(status_code=404, detail="Not found")
+    for key, value in item.dict().items():
+        setattr(db_item, key, value)
+    db.commit()
+    return db_item
+
+@router.delete("/library/{item_id}")
+def delete_library_item(item_id: int, db: Session = Depends(get_db)):
+    db_item = db.query(LibraryItem).filter(LibraryItem.id == item_id).first()
+    if not db_item:
+        raise HTTPException(status_code=404, detail="Not found")
+    db.delete(db_item)
+    db.commit()
+    return {"ok": True}
+
+# Advertisements
+@router.get("/advertisements")
+def get_advertisements(db: Session = Depends(get_db)):
+    return db.query(Advertisement).filter(Advertisement.is_active == True).all()
+
+@router.post("/advertisements")
+def create_advertisement(item: AdvertisementCreate, db: Session = Depends(get_db)):
+    db_item = Advertisement(**item.dict())
+    db.add(db_item)
+    db.commit()
+    db.refresh(db_item)
+    return db_item
+
+@router.put("/advertisements/{item_id}")
+def update_advertisement(item_id: int, item: AdvertisementCreate, db: Session = Depends(get_db)):
+    db_item = db.query(Advertisement).filter(Advertisement.id == item_id).first()
+    if not db_item:
+        raise HTTPException(status_code=404, detail="Not found")
+    for key, value in item.dict().items():
+        setattr(db_item, key, value)
+    db.commit()
+    return db_item
+
+@router.delete("/advertisements/{item_id}")
+def delete_advertisement(item_id: int, db: Session = Depends(get_db)):
+    db_item = db.query(Advertisement).filter(Advertisement.id == item_id).first()
+    if not db_item:
+        raise HTTPException(status_code=404, detail="Not found")
+    db.delete(db_item)
+    db.commit()
+    return {"ok": True}
+
+# Gallery
+@router.get("/gallery")
+def get_gallery(db: Session = Depends(get_db)):
+    return db.query(GalleryImage).order_by(GalleryImage.created_at.desc()).all()
+
+@router.post("/gallery")
+def create_gallery_image(item: GalleryImageCreate, db: Session = Depends(get_db)):
+    db_item = GalleryImage(**item.dict())
+    db.add(db_item)
+    db.commit()
+    db.refresh(db_item)
+    return db_item
+
+@router.put("/gallery/{item_id}")
+def update_gallery_image(item_id: int, item: GalleryImageCreate, db: Session = Depends(get_db)):
+    db_item = db.query(GalleryImage).filter(GalleryImage.id == item_id).first()
+    if not db_item:
+        raise HTTPException(status_code=404, detail="Not found")
+    for key, value in item.dict().items():
+        setattr(db_item, key, value)
+    db.commit()
+    return db_item
+
+@router.delete("/gallery/{item_id}")
+def delete_gallery_image(item_id: int, db: Session = Depends(get_db)):
+    db_item = db.query(GalleryImage).filter(GalleryImage.id == item_id).first()
+    if not db_item:
+        raise HTTPException(status_code=404, detail="Not found")
+    db.delete(db_item)
+    db.commit()
+    return {"ok": True}
+
+# Upload endpoint
+@router.post("/upload")
+async def upload_file(file: UploadFile = File(...)):
+    file_location = os.path.join(UPLOAD_DIR, file.filename)
+    with open(file_location, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+    return {"file_url": f"/uploads/{file.filename}"}

@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - FGCK Nyeri</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #f4f4f4; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .card { background: white; padding: 20px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h1 { color: #007BFF; margin-bottom: 20px; }
+        h2 { color: #333; margin-bottom: 15px; }
+        button { background: #007BFF; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        input, textarea, select { width: 100%; padding: 10px; margin: 5px 0 15px; border: 1px solid #ddd; border-radius: 4px; }
+        .item { padding: 10px; border-bottom: 1px solid #eee; }
+        .item:last-child { border-bottom: none; }
+        .nav { background: #333; padding: 10px; margin-bottom: 20px; border-radius: 8px; }
+        .nav a { color: white; margin-right: 15px; text-decoration: none; }
+        .nav a:hover { text-decoration: underline; }
+        .hidden { display: none; }
+        .error { color: red; }
+        .success { color: green; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>FGCK Nyeri - Admin Dashboard</h1>
+            <div id="loginSection">
+                <h2>Login</h2>
+                <input type="text" id="username" placeholder="Username" />
+                <input type="password" id="password" placeholder="Password" />
+                <button onclick="login()">Login</button>
+                <p id="loginError" class="error"></p>
+            </div>
+            <div id="adminPanel" class="hidden">
+                <div class="nav">
+                    <a href="#" onclick="showSection('announcements')">Announcements</a>
+                    <a href="#" onclick="showSection('magazines')">Magazines</a>
+                    <a href="#" onclick="showSection('library')">Library</a>
+                    <a href="#" onclick="showSection('advertisements')">Advertisements</a>
+                    <a href="#" onclick="showSection('gallery')">Gallery</a>
+                    <a href="#" onclick="logout()">Logout</a>
+                </div>
+
+                <div id="announcements" class="section">
+                    <h2>Announcements</h2>
+                    <input type="text" id="annTitle" placeholder="Title" />
+                    <textarea id="annMessage" placeholder="Message"></textarea>
+                    <button onclick="addAnnouncement()">Add Announcement</button>
+                    <div id="annList"></div>
+                </div>
+
+                <div id="magazines" class="section hidden">
+                    <h2>Magazines</h2>
+                    <input type="text" id="magTitle" placeholder="Title" />
+                    <textarea id="magDesc" placeholder="Description"></textarea>
+                    <input type="text" id="magFile" placeholder="File URL" />
+                    <input type="text" id="magCover" placeholder="Cover Image URL" />
+                    <button onclick="addMagazine()">Add Magazine</button>
+                    <div id="magList"></div>
+                </div>
+
+                <div id="library" class="section hidden">
+                    <h2>Library</h2>
+                    <input type="text" id="libTitle" placeholder="Title" />
+                    <input type="text" id="libAuthor" placeholder="Author" />
+                    <textarea id="libDesc" placeholder="Description"></textarea>
+                    <input type="text" id="libFile" placeholder="File URL" />
+                    <input type="text" id="libCat" placeholder="Category" />
+                    <button onclick="addLibrary()">Add Item</button>
+                    <div id="libList"></div>
+                </div>
+
+                <div id="advertisements" class="section hidden">
+                    <h2>Advertisements</h2>
+                    <input type="text" id="adTitle" placeholder="Title" />
+                    <textarea id="adDesc" placeholder="Description"></textarea>
+                    <input type="text" id="adImage" placeholder="Image URL" />
+                    <input type="text" id="adLink" placeholder="Link URL" />
+                    <button onclick="addAdvertisement()">Add Advertisement</button>
+                    <div id="adList"></div>
+                </div>
+
+                <div id="gallery" class="section hidden">
+                    <h2>Gallery</h2>
+                    <input type="text" id="galTitle" placeholder="Title" />
+                    <input type="text" id="galSrc" placeholder="Image URL" />
+                    <input type="text" id="galCat" placeholder="Category" />
+                    <input type="text" id="galCaption" placeholder="Caption" />
+                    <button onclick="addGallery()">Add Image</button>
+                    <div id="galList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8000/api';
+        let token = localStorage.getItem('token');
+
+        function showSection(id) {
+            document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+        }
+
+        async function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const formData = new FormData();
+            formData.append('username', username);
+            formData.append('password', password);
+
+            try {
+                const res = await fetch(`${API_BASE}/admin/token`, {
+                    method: 'POST',
+                    body: formData
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    token = data.access_token;
+                    localStorage.setItem('token', token);
+                    document.getElementById('loginSection').classList.add('hidden');
+                    document.getElementById('adminPanel').classList.remove('hidden');
+                    loadAll();
+                } else {
+                    document.getElementById('loginError').textContent = 'Invalid credentials';
+                }
+            } catch (e) {
+                document.getElementById('loginError').textContent = 'Login failed';
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            token = null;
+            document.getElementById('loginSection').classList.remove('hidden');
+            document.getElementById('adminPanel').classList.add('hidden');
+        }
+
+        async function apiCall(endpoint, method = 'GET', body = null) {
+            const headers = { 'Authorization': `Bearer ${token}` };
+            if (body) headers['Content-Type'] = 'application/json';
+            const res = await fetch(`${API_BASE}${endpoint}`, {
+                method,
+                headers,
+                body: body ? JSON.stringify(body) : null
+            });
+            if (res.status === 401) { logout(); throw new Error('Unauthorized'); }
+            return res;
+        }
+
+        async function loadAll() {
+            await loadAnnouncements();
+            await loadMagazines();
+            await loadLibrary();
+            await loadAdvertisements();
+            await loadGallery();
+        }
+
+        async function loadAnnouncements() {
+            const res = await apiCall('/admin/announcements');
+            const items = await res.json();
+            document.getElementById('annList').innerHTML = items.map(item => `
+                <div class="item">
+                    <strong>${item.title}</strong>: ${item.message}
+                    <button onclick="deleteAnnouncement(${item.id})">Delete</button>
+                </div>
+            `).join('');
+        }
+
+        async function addAnnouncement() {
+            await apiCall('/admin/announcements', 'POST', {
+                title: document.getElementById('annTitle').value,
+                message: document.getElementById('annMessage').value,
+                is_active: true
+            });
+            document.getElementById('annTitle').value = '';
+            document.getElementById('annMessage').value = '';
+            loadAnnouncements();
+        }
+
+        async function deleteAnnouncement(id) {
+            await apiCall(`/admin/announcements/${id}`, 'DELETE');
+            loadAnnouncements();
+        }
+
+        async function loadMagazines() {
+            const res = await apiCall('/admin/magazines');
+            const items = await res.json();
+            document.getElementById('magList').innerHTML = items.map(item => `
+                <div class="item">
+                    <strong>${item.title}</strong>: ${item.description || ''}
+                    <button onclick="deleteMagazine(${item.id})">Delete</button>
+                </div>
+            `).join('');
+        }
+
+        async function addMagazine() {
+            await apiCall('/admin/magazines', 'POST', {
+                title: document.getElementById('magTitle').value,
+                description: document.getElementById('magDesc').value,
+                file_url: document.getElementById('magFile').value,
+                cover_image_url: document.getElementById('magCover').value,
+                is_published: true
+            });
+            ['magTitle', 'magDesc', 'magFile', 'magCover'].forEach(id => document.getElementById(id).value = '');
+            loadMagazines();
+        }
+
+        async function deleteMagazine(id) {
+            await apiCall(`/admin/magazines/${id}`, 'DELETE');
+            loadMagazines();
+        }
+
+        async function loadLibrary() {
+            const res = await apiCall('/admin/library');
+            const items = await res.json();
+            document.getElementById('libList').innerHTML = items.map(item => `
+                <div class="item">
+                    <strong>${item.title}</strong> by ${item.author || 'Unknown'}
+                    <button onclick="deleteLibrary(${item.id})">Delete</button>
+                </div>
+            `).join('');
+        }
+
+        async function addLibrary() {
+            await apiCall('/admin/library', 'POST', {
+                title: document.getElementById('libTitle').value,
+                author: document.getElementById('libAuthor').value,
+                description: document.getElementById('libDesc').value,
+                file_url: document.getElementById('libFile').value,
+                category: document.getElementById('libCat').value || 'books'
+            });
+            ['libTitle', 'libAuthor', 'libDesc', 'libFile', 'libCat'].forEach(id => document.getElementById(id).value = '');
+            loadLibrary();
+        }
+
+        async function deleteLibrary(id) {
+            await apiCall(`/admin/library/${id}`, 'DELETE');
+            loadLibrary();
+        }
+
+        async function loadAdvertisements() {
+            const res = await apiCall('/admin/advertisements');
+            const items = await res.json();
+            document.getElementById('adList').innerHTML = items.map(item => `
+                <div class="item">
+                    <strong>${item.title}</strong>: ${item.description || ''}
+                    <button onclick="deleteAdvertisement(${item.id})">Delete</button>
+                </div>
+            `).join('');
+        }
+
+        async function addAdvertisement() {
+            await apiCall('/admin/advertisements', 'POST', {
+                title: document.getElementById('adTitle').value,
+                description: document.getElementById('adDesc').value,
+                image_url: document.getElementById('adImage').value,
+                link_url: document.getElementById('adLink').value,
+                is_active: true,
+                position: 'sidebar'
+            });
+            ['adTitle', 'adDesc', 'adImage', 'adLink'].forEach(id => document.getElementById(id).value = '');
+            loadAdvertisements();
+        }
+
+        async function deleteAdvertisement(id) {
+            await apiCall(`/admin/advertisements/${id}`, 'DELETE');
+            loadAdvertisements();
+        }
+
+        async function loadGallery() {
+            const res = await apiCall('/admin/gallery');
+            const items = await res.json();
+            document.getElementById('galList').innerHTML = items.map(item => `
+                <div class="item">
+                    <strong>${item.title || item.caption}</strong> (${item.category})
+                    <button onclick="deleteGallery(${item.id})">Delete</button>
+                </div>
+            `).join('');
+        }
+
+        async function addGallery() {
+            await apiCall('/admin/gallery', 'POST', {
+                src: document.getElementById('galSrc').value,
+                category: document.getElementById('galCat').value,
+                caption: document.getElementById('galCaption').value,
+                title: document.getElementById('galTitle').value
+            });
+            ['galTitle', 'galSrc', 'galCat', 'galCaption'].forEach(id => document.getElementById(id).value = '');
+            loadGallery();
+        }
+
+        async function deleteGallery(id) {
+            await apiCall(`/admin/gallery/${id}`, 'DELETE');
+            loadGallery();
+        }
+
+        if (token) {
+            document.getElementById('loginSection').classList.add('hidden');
+            document.getElementById('adminPanel').classList.remove('hidden');
+            loadAll();
+        }
+    </script>
+</body>
+</html>
