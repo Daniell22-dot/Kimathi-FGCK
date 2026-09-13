@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react'
+import { fetchDirections } from '../utils/api'
 
+const CHURCH_COORDS = '36.956808,-0.397906'
 const CHURCH_LAT = -0.397906
 const CHURCH_LNG = 36.956808
-const CHURCH_COORDS = `${CHURCH_LNG},${CHURCH_LAT}`
 
 export default function Directions() {
   const mapRef = useRef(null)
@@ -67,14 +68,8 @@ export default function Directions() {
     setLoading(true)
     setError('')
     setRouteInfo(null)
-
     try {
-      const res = await fetch(`/api/directions?start=${encodeURIComponent(start)}&end=${encodeURIComponent(CHURCH_COORDS)}`)
-      if (!res.ok) {
-        const text = await res.text()
-        throw new Error(text || 'Directions service returned an error')
-      }
-      const data = await res.json()
+      const data = await fetchDirections(start, CHURCH_COORDS)
       setRouteInfo(data)
       const L = window.L
       if (L && mapInstance.current) {
