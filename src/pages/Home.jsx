@@ -1,20 +1,14 @@
 import { useState, useEffect } from 'react'
 import Layout from '../components/Layout'
-
-const announcements = [
-  "Welcome to our new website!",
-  "Youth Bible study this Friday.",
-  "Youth Fun Day on 10/10/2026!"
-]
+import { fetchAnnouncements } from '../utils/api'
 
 export default function Home() {
-  const [index, setIndex] = useState(0)
+  const [announcements, setAnnouncements] = useState([])
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setIndex((prev) => (prev + 1) % announcements.length)
-    }, 5000)
-    return () => clearInterval(interval)
+    fetchAnnouncements()
+      .then(setAnnouncements)
+      .catch(() => setAnnouncements([]))
   }, [])
 
   return (
@@ -25,7 +19,13 @@ export default function Home() {
       </section>
       <section>
         <h2>Announcements</h2>
-        <p className="announcement-text">{announcements[index]}</p>
+        {announcements.length === 0 && <p>No announcements at the moment.</p>}
+        {announcements.map(item => (
+          <div key={item.id} className="announcement-item">
+            <strong>{item.title}</strong>
+            <p>{item.message}</p>
+          </div>
+        ))}
       </section>
     </div>
   )
