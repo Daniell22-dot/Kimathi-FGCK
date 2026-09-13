@@ -54,6 +54,49 @@ nav ul li a:hover {
   background: #555;
 }
 
+/* Dropdown */
+nav ul li.has-dropdown {
+  position: relative;
+}
+
+nav ul li.has-dropdown > a {
+  position: relative;
+}
+
+nav ul li.has-dropdown .dropdown {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: #444;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  min-width: 220px;
+  z-index: 1000;
+  border-radius: 0 0 6px 6px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+nav ul li.has-dropdown:hover .dropdown {
+  display: block;
+}
+
+nav ul li.has-dropdown .dropdown li a {
+  padding: 0.75rem 1rem;
+  font-size: 0.95rem;
+  color: #fff;
+  border-bottom: 1px solid #555;
+}
+
+nav ul li.has-dropdown .dropdown li:last-child a {
+  border-bottom: none;
+}
+
+nav ul li.has-dropdown .dropdown li a:hover {
+  background: #007BFF;
+}
+
 .hamburger {
   display: none;
   background: none;

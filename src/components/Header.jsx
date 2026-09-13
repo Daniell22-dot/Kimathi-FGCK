@@ -1,5 +1,8 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { getAllDepartments } from '../pages/Departments'
+
+const departments = getAllDepartments()
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
@@ -17,7 +20,16 @@ export default function Header() {
           <li><Link to="/">Home</Link></li>
           <li><Link to="/about">About Us</Link></li>
           <li><Link to="/services">Services</Link></li>
-          <li><Link to="/departments">Departments</Link></li>
+          <li className="has-dropdown">
+            <Link to="/departments">Departments</Link>
+            <ul className="dropdown">
+              {departments.map(dept => (
+                <li key={dept.slug}>
+                  <Link to={`/departments/${dept.slug}`}>{dept.title}</Link>
+                </li>
+              ))}
+            </ul>
+          </li>
           <li><Link to="/leadership">Leadership</Link></li>
           <li><Link to="/gallery">Gallery</Link></li>
           <li><Link to="/videos">Videos</Link></li>

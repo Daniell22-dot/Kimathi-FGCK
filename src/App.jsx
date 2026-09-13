@@ -4,6 +4,7 @@ import Home from './pages/Home'
 import About from './pages/About'
 import Services from './pages/Services'
 import Departments from './pages/Departments'
+import DepartmentPage from './pages/DepartmentPage'
 import Leadership from './pages/Leadership'
 import Gallery from './pages/Gallery'
 import Directions from './pages/Directions'
@@ -18,6 +19,7 @@ export default function App() {
         <Route path="about" element={<About />} />
         <Route path="services" element={<Services />} />
         <Route path="departments" element={<Departments />} />
+        <Route path="departments/:slug" element={<DepartmentPage />} />
         <Route path="leadership" element={<Leadership />} />
         <Route path="gallery" element={<Gallery />} />
         <Route path="directions" element={<Directions />} />
