@@ -11,11 +11,26 @@ export default function Services() {
   return (
     <div>
       <h2>Our Services</h2>
-      <ul className="services-list">
-        {services.map((s, i) => (
-          <li key={i}><strong>{s.day}:</strong> {s.time} — {s.name}</li>
-        ))}
-      </ul>
+      <div className="table-wrapper">
+        <table className="services-table">
+          <thead>
+            <tr>
+              <th>Day</th>
+              <th>Time</th>
+              <th>Service</th>
+            </tr>
+          </thead>
+          <tbody>
+            {services.map((s, i) => (
+              <tr key={i}>
+                <td><strong>{s.day}</strong></td>
+                <td>{s.time}</td>
+                <td>{s.name}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   )
 }

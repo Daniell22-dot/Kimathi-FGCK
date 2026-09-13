@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom'
 import Header from './Header'
 import Footer from './Footer'
+import BibleVerse from './BibleVerse'
 import '../styles/global.css'
 
 export default function Layout() {
@@ -8,9 +9,12 @@ export default function Layout() {
     <div className="app">
       <Header />
       <main>
-        <Outlet />
+        <div className="container">
+          <Outlet />
+        </div>
       </main>
       <Footer />
+      <BibleVerse />
     </div>
   )
 }
