@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import Layout from '../components/Layout'
 import { fetchGallery } from '../utils/api'
 
 export default function Gallery() {

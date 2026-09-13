@@ -1,5 +1,3 @@
-import Layout from '../components/Layout'
-
 const services = [
   { day: 'Sunday', time: '8-9 AM', name: 'Youth Service' },
   { day: 'Sunday', time: '9 AM', name: 'Sunday School' },

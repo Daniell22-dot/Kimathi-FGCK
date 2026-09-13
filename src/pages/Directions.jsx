@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react'
-import Layout from '../components/Layout'
 import { fetchDirections } from '../utils/api'
 
-const CHURCH_COORDS = '36.956667,-0.397778'
+const CHURCH_COORDS = '36.956808,-0.397906'
+const CHURCH_LAT = -0.397906
+const CHURCH_LNG = 36.956808
 
 export default function Directions() {
   const mapRef = useRef(null)
@@ -18,12 +19,12 @@ export default function Directions() {
     const L = window.L
     if (!L) return
 
-    const map = L.map(mapRef.current).setView([-0.397778, 36.95875], 15)
+    const map = L.map(mapRef.current).setView([CHURCH_LAT, CHURCH_LNG], 15)
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map)
 
-    L.marker([-0.397778, 36.956667]).addTo(map).bindPopup('Full Gospel Churches of Kenya, Nyeri')
+    L.marker([CHURCH_LAT, CHURCH_LNG]).addTo(map).bindPopup('Full Gospel Churches of Kenya, Nyeri')
     L.marker([-0.397778, 36.960833]).addTo(map).bindPopup('Dedan Kimathi University')
 
     mapInstance.current = map

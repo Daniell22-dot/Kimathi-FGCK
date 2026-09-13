@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import Layout from '../components/Layout'
 import { fetchAnnouncements } from '../utils/api'
 
 export default function Home() {

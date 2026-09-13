@@ -12,18 +12,18 @@ import Videos from './pages/Videos'
 
 export default function App() {
   return (
-    <Layout>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/services" element={<Services />} />
-        <Route path="/departments" element={<Departments />} />
-        <Route path="/leadership" element={<Leadership />} />
-        <Route path="/gallery" element={<Gallery />} />
-        <Route path="/directions" element={<Directions />} />
-        <Route path="/join" element={<Join />} />
-        <Route path="/videos" element={<Videos />} />
-      </Routes>
-    </Layout>
+    <Routes>
+      <Route path="/" element={<Layout />}>
+        <Route index element={<Home />} />
+        <Route path="about" element={<About />} />
+        <Route path="services" element={<Services />} />
+        <Route path="departments" element={<Departments />} />
+        <Route path="leadership" element={<Leadership />} />
+        <Route path="gallery" element={<Gallery />} />
+        <Route path="directions" element={<Directions />} />
+        <Route path="join" element={<Join />} />
+        <Route path="videos" element={<Videos />} />
+      </Route>
+    </Routes>
   )
 }

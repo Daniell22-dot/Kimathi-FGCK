@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import Layout from '../components/Layout'
 import { fetchVideos } from '../utils/api'
 
 function getYouTubeId(url) {
