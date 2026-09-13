@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from 'react'
 import { fetchDirections } from '../utils/api'
 
-const CHURCH_COORDS = '36.956808,-0.397906'
 const CHURCH_LAT = -0.397906
 const CHURCH_LNG = 36.956808
+const CHURCH_COORDS = `${CHURCH_LNG},${CHURCH_LAT}`
 
 export default function Directions() {
   const mapRef = useRef(null)
@@ -19,10 +19,23 @@ export default function Directions() {
     const L = window.L
     if (!L) return
 
-    const map = L.map(mapRef.current).setView([CHURCH_LAT, CHURCH_LNG], 15)
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    const map = L.map(mapRef.current).setView([CHURCH_LAT, CHURCH_LNG], 16)
+
+    const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map)
+    })
+
+    const googleHybrid = L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
+      attribution: '&copy; Google Maps'
+    })
+
+    const baseLayers = {
+      'Google Hybrid': googleHybrid,
+      'OpenStreetMap': osmLayer
+    }
+
+    osmLayer.addTo(map)
+    L.control.layers(baseLayers).addTo(map)
 
     L.marker([CHURCH_LAT, CHURCH_LNG]).addTo(map).bindPopup('Full Gospel Churches of Kenya, Nyeri')
     L.marker([-0.397778, 36.960833]).addTo(map).bindPopup('Dedan Kimathi University')
