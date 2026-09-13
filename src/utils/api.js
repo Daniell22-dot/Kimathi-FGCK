@@ -29,3 +29,15 @@ export async function fetchAdvertisements() {
   if (!res.ok) throw new Error('Failed to fetch advertisements');
   return res.json();
 }
+
+export async function fetchVideos() {
+  const res = await fetch(`${API_BASE}/videos`);
+  if (!res.ok) throw new Error('Failed to fetch videos');
+  return res.json();
+}
+
+export async function fetchDirections(start, end) {
+  const res = await fetch(`${API_BASE}/directions?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`);
+  if (!res.ok) throw new Error('Failed to fetch directions');
+  return res.json();
+}

@@ -5,7 +5,9 @@ from models import Base, Announcement, Magazine, LibraryItem, Advertisement, Gal
 from schemas import AnnouncementCreate, MagazineCreate, LibraryItemCreate, AdvertisementCreate, GalleryImageCreate, VideoCreate
 import os
 import shutil
+import requests
 from datetime import datetime
+from fastapi.responses import JSONResponse
 
 Base.metadata.create_all(bind=engine)
 
@@ -220,3 +222,33 @@ async def upload_file(file: UploadFile = File(...)):
     with open(file_location, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
     return {"file_url": f"/uploads/{file.filename}"}
+
+# Directions endpoint (proxies OpenRouteService)
+@router.get("/directions")
+def get_directions(start: str, end: str):
+    ors_key = os.getenv("ORS_KEY")
+    if not ors_key:
+        raise HTTPException(status_code=500, detail="ORS_KEY not configured")
+
+    url = "https://api.openrouteservice.org/v2/directions/driving-car"
+    headers = {"Authorization": ors_key, "Content-Type": "application/json"}
+    body = {
+        "coordinates": [
+            [float(coord) for coord in start.split(",")],
+            [float(coord) for coord in end.split(",")]
+        ]
+    }
+
+    try:
+        ors_res = requests.post(url, json=body, headers=headers, timeout=15)
+        ors_res.raise_for_status()
+        data = ors_res.json()
+        route = data["routes"][0]
+        return {
+            "distance": route["summary"]["distance"],
+            "duration": route["summary"]["duration"],
+            "geometry": route["geometry"],
+            "steps": route.get("segments", [{}])[0].get("steps", [])
+        }
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"Directions service error: {str(e)}")

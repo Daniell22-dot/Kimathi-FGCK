@@ -42,6 +42,7 @@
                     <a href="#" onclick="showSection('library')">Library</a>
                     <a href="#" onclick="showSection('advertisements')">Advertisements</a>
                     <a href="#" onclick="showSection('gallery')">Gallery</a>
+                    <a href="#" onclick="showSection('videos')">Videos</a>
                     <a href="#" onclick="logout()">Logout</a>
                 </div>
 
@@ -92,6 +93,15 @@
                     <input type="text" id="galCaption" placeholder="Caption" />
                     <button onclick="addGallery()">Add Image</button>
                     <div id="galList"></div>
+                </div>
+
+                <div id="videos" class="section hidden">
+                    <h2>Videos</h2>
+                    <input type="text" id="vidTitle" placeholder="Title" />
+                    <input type="text" id="vidUrl" placeholder="YouTube URL" />
+                    <textarea id="vidDesc" placeholder="Description"></textarea>
+                    <button onclick="addVideo()">Add Video</button>
+                    <div id="vidList"></div>
                 </div>
             </div>
         </div>
@@ -158,6 +168,7 @@
             await loadLibrary();
             await loadAdvertisements();
             await loadGallery();
+            await loadVideos();
         }
 
         async function loadAnnouncements() {
@@ -297,6 +308,33 @@
         async function deleteGallery(id) {
             await apiCall(`/admin/gallery/${id}`, 'DELETE');
             loadGallery();
+        }
+
+        async function loadVideos() {
+            const res = await apiCall('/admin/videos');
+            const items = await res.json();
+            document.getElementById('vidList').innerHTML = items.map(item => `
+                <div class="item">
+                    <strong>${item.title}</strong>
+                    <button onclick="deleteVideo(${item.id})">Delete</button>
+                </div>
+            `).join('');
+        }
+
+        async function addVideo() {
+            await apiCall('/admin/videos', 'POST', {
+                title: document.getElementById('vidTitle').value,
+                youtube_url: document.getElementById('vidUrl').value,
+                description: document.getElementById('vidDesc').value,
+                is_active: true
+            });
+            ['vidTitle', 'vidUrl', 'vidDesc'].forEach(id => document.getElementById(id).value = '');
+            loadVideos();
+        }
+
+        async function deleteVideo(id) {
+            await apiCall(`/admin/videos/${id}`, 'DELETE');
+            loadVideos();
         }
 
         if (token) {
