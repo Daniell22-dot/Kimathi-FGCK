@@ -236,19 +236,22 @@ def get_directions(start: str, end: str):
         "coordinates": [
             [float(coord) for coord in start.split(",")],
             [float(coord) for coord in end.split(",")]
-        ]
+        ],
+        "format": "geojson"
     }
 
     try:
         ors_res = requests.post(url, json=body, headers=headers, timeout=15)
         ors_res.raise_for_status()
         data = ors_res.json()
-        route = data["routes"][0]
+        feature = data["features"][0]
+        props = feature["properties"]
+        coords = feature["geometry"]["coordinates"]
         return {
-            "distance": route["summary"]["distance"],
-            "duration": route["summary"]["duration"],
-            "geometry": route["geometry"],
-            "steps": route.get("segments", [{}])[0].get("steps", [])
+            "distance": props["summary"]["distance"],
+            "duration": props["summary"]["duration"],
+            "coordinates": coords,
+            "steps": props["segments"][0]["steps"]
         }
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"Directions service error: {str(e)}")

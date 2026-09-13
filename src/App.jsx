@@ -8,6 +8,7 @@ import Leadership from './pages/Leadership'
 import Gallery from './pages/Gallery'
 import Directions from './pages/Directions'
 import Join from './pages/Join'
+import Videos from './pages/Videos'
 
 export default function App() {
   return (
@@ -21,6 +22,7 @@ export default function App() {
         <Route path="/gallery" element={<Gallery />} />
         <Route path="/directions" element={<Directions />} />
         <Route path="/join" element={<Join />} />
+        <Route path="/videos" element={<Videos />} />
       </Routes>
     </Layout>
   )
