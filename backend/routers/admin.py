@@ -5,8 +5,8 @@ from passlib.context import CryptContext
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
 from database import SessionLocal, engine
-from models import Base, Announcement, Magazine, LibraryItem, Advertisement, GalleryImage
-from schemas import AnnouncementCreate, MagazineCreate, LibraryItemCreate, AdvertisementCreate, GalleryImageCreate
+from models import Base, Announcement, Magazine, LibraryItem, Advertisement, GalleryImage, Video
+from schemas import AnnouncementCreate, MagazineCreate, LibraryItemCreate, AdvertisementCreate, GalleryImageCreate, VideoCreate
 import os
 import shutil
 
@@ -213,6 +213,38 @@ def update_gallery_image(item_id: int, item: GalleryImageCreate, db: Session = D
 @router.delete("/gallery/{item_id}")
 def delete_gallery_image(item_id: int, db: Session = Depends(get_db), current_user: str = Depends(get_current_admin)):
     db_item = db.query(GalleryImage).filter(GalleryImage.id == item_id).first()
+    if not db_item:
+        raise HTTPException(status_code=404, detail="Not found")
+    db.delete(db_item)
+    db.commit()
+    return {"ok": True}
+
+# Videos
+@router.get("/videos")
+def get_all_videos(db: Session = Depends(get_db), current_user: str = Depends(get_current_admin)):
+    return db.query(Video).order_by(Video.created_at.desc()).all()
+
+@router.post("/videos")
+def create_video(item: VideoCreate, db: Session = Depends(get_db), current_user: str = Depends(get_current_admin)):
+    db_item = Video(**item.dict())
+    db.add(db_item)
+    db.commit()
+    db.refresh(db_item)
+    return db_item
+
+@router.put("/videos/{item_id}")
+def update_video(item_id: int, item: VideoCreate, db: Session = Depends(get_db), current_user: str = Depends(get_current_admin)):
+    db_item = db.query(Video).filter(Video.id == item_id).first()
+    if not db_item:
+        raise HTTPException(status_code=404, detail="Not found")
+    for key, value in item.dict().items():
+        setattr(db_item, key, value)
+    db.commit()
+    return db_item
+
+@router.delete("/videos/{item_id}")
+def delete_video(item_id: int, db: Session = Depends(get_db), current_user: str = Depends(get_current_admin)):
+    db_item = db.query(Video).filter(Video.id == item_id).first()
     if not db_item:
         raise HTTPException(status_code=404, detail="Not found")
     db.delete(db_item)
