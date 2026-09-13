@@ -1,5 +1,4 @@
 import { useEffect, useRef } from 'react'
-import Layout from '../components/Layout'
 
 const CHURCH_LAT = -0.397906
 const CHURCH_LNG = 36.956808
