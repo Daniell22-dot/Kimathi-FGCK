@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo Gallery - FGCK Nyeri</title>
+    <link rel="stylesheet" href="styles/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css">
+</head>
+<body>
+    <header>
+        <h1>Full Gospel Churches of Kenya, Nyeri Town LCA Kimathi Branch</h1>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="services.html">Services</a></li>
+            <li><a href="leadership.html">Leadership</a></li>
+            <li><a href="gallery.html" class="active">Gallery</a></li>
+            <li><a href="history.html">History</a></li>
+            <li><a href="join.html">Why Join Us?</a></li>
+            <li><a href="directions.html">Directions & Contact</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <section class="gallery-section">
+            <h2>Our Photo Gallery 📸</h2>
+            
+            <div class="gallery-filters">
+                <button class="filter-btn active" data-category="all">All Photos</button>
+                <button class="filter-btn" data-category="worship">Worship Service</button>
+                <button class="filter-btn" data-category="events">Church Events</button>
+                <button class="filter-btn" data-category="youth">Youth Ministry</button>
+            </div>
+
+            <div class="gallery-grid" id="gallery-container">
+                <!-- Gallery items will be dynamically loaded here -->
+                <div class="gallery-loading">
+                    <p>Loading gallery...</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2025 Full Gospel Churches of Kenya, Nyeri</p>
+            <p>For more information about our gallery, please contact the church office</p>
+        </div>
+    </footer>
+
+    <!-- Essential Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
+    <script src="scripts/gallery.js"></script>
+
+    <!-- Preload Lightbox images -->
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/images/loading.gif" as="image">
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/images/prev.png" as="image">
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/images/next.png" as="image">
+</body>
+</html>
