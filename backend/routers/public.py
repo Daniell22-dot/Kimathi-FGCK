@@ -245,16 +245,45 @@ def get_directions(start: str, end: str):
         print(f"ORS status: {ors_res.status_code}, body: {ors_res.text[:500]}")
         ors_res.raise_for_status()
         data = ors_res.json()
-        if "features" not in data or not data["features"]:
+
+        distance = None
+        duration = None
+        coordinates = None
+        steps = []
+
+        if "features" in data and data["features"]:
+            feature = data["features"][0]
+            props = feature["properties"]
+            summary = props.get("summary", {})
+            distance = summary.get("distance")
+            duration = summary.get("duration")
+            geometry = feature.get("geometry", {})
+            coordinates = geometry.get("coordinates")
+            segments = props.get("segments", [])
+            if segments:
+                steps = segments[0].get("steps", [])
+        elif "routes" in data and data["routes"]:
+            route = data["routes"][0]
+            summary = route.get("summary", {})
+            distance = summary.get("distance")
+            duration = summary.get("duration")
+            geometry = route.get("geometry")
+            if geometry:
+                import polyline
+                coordinates = polyline.decode(geometry)
+                coordinates = [[lon, lat] for lat, lon in coordinates]
+            segments = route.get("segments", [])
+            if segments:
+                steps = segments[0].get("steps", [])
+
+        if distance is None or coordinates is None:
             raise HTTPException(status_code=404, detail="No route found for the given locations")
-        feature = data["features"][0]
-        props = feature["properties"]
-        coords = feature["geometry"]["coordinates"]
+
         return {
-            "distance": props["summary"]["distance"],
-            "duration": props["summary"]["duration"],
-            "coordinates": coords,
-            "steps": props["segments"][0]["steps"]
+            "distance": distance,
+            "duration": duration,
+            "coordinates": coordinates,
+            "steps": steps
         }
     except HTTPException:
         raise
