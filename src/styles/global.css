@@ -144,6 +144,19 @@ footer {
   min-height: 1.5rem;
 }
 
+.announcement-item {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #eee;
+}
+
+.announcement-item:last-child {
+  border-bottom: none;
+}
+
+.announcement-item strong {
+  color: #0056b3;
+}
+
 @media (max-width: 768px) {
   .hamburger {
     display: block;
