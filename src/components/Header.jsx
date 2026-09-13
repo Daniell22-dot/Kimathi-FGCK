@@ -20,6 +20,7 @@ export default function Header() {
           <li><Link to="/departments">Departments</Link></li>
           <li><Link to="/leadership">Leadership</Link></li>
           <li><Link to="/gallery">Gallery</Link></li>
+          <li><Link to="/videos">Videos</Link></li>
           <li><Link to="/join">Why Join Us?</Link></li>
           <li><Link to="/directions">Directions & Contact</Link></li>
         </ul>
