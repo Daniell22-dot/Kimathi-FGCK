@@ -228,7 +228,7 @@ async def upload_file(file: UploadFile = File(...)):
 def get_directions(start: str, end: str):
     ors_key = os.getenv("ORS_KEY")
     if not ors_key:
-        raise HTTPException(status_code=500, detail="ORS_KEY not configured")
+        raise HTTPException(status_code=500, detail="Directions service is not configured on the server")
 
     url = "https://api.openrouteservice.org/v2/directions/driving-car"
     headers = {"Authorization": ors_key, "Content-Type": "application/json"}
@@ -244,6 +244,8 @@ def get_directions(start: str, end: str):
         ors_res = requests.post(url, json=body, headers=headers, timeout=15)
         ors_res.raise_for_status()
         data = ors_res.json()
+        if "features" not in data or not data["features"]:
+            raise HTTPException(status_code=404, detail="No route found for the given locations")
         feature = data["features"][0]
         props = feature["properties"]
         coords = feature["geometry"]["coordinates"]
@@ -253,5 +255,7 @@ def get_directions(start: str, end: str):
             "coordinates": coords,
             "steps": props["segments"][0]["steps"]
         }
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"Directions service error: {str(e)}")
