@@ -32,12 +32,12 @@ app.add_middleware(TrustedHostMiddleware, allowed_hosts=ALLOWED_HOSTS)
 
 # CORS Configuration
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
-VERCEL_URL = os.getenv("VERCEL_URL", "")  # Set this in Vercel env vars
+VERCEL_BACKEND_URL = os.getenv("VERCEL_BACKEND_URL", "")
 
+# Build allowed origins
 allowed_origins = [FRONTEND_URL]
-if VERCEL_URL:
-    allowed_origins.append(f"https://{VERCEL_URL}")
-    allowed_origins.append(f"https://{VERCEL_URL}.vercel.app")
+if VERCEL_BACKEND_URL:
+    allowed_origins.append(VERCEL_BACKEND_URL)
 
 app.add_middleware(
     CORSMiddleware,
